@@ -1,66 +1,73 @@
 from django.http import JsonResponse
-from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-# from meuapp.decorators import authenticate_user
+from meuapp.decorators import authenticate_user
+from django.utils.decorators import method_decorator
+from meuapp.views.application_views import ApplicationView
 from meuapp.serializers import UserSerializer
 from meuapp.models import User
 import json
 
-class UserView(View):
+class UserView(ApplicationView):
 
   @csrf_exempt
-  def dispatch(self, *args, **kwargs):
-    method = args[0].method.lower()
+  def dispatch(self, request, **kwargs):
+    method = request.method.lower()
     method_map = {
-      'post': self.signup if args[0].path == '/signup' else self.signin if args[0].path == '/signin' else None,
-      'get': self.show,
-      'put': self.update,
-      'patch': self.update,
-      'delete': self.delete,
+      'post': self.signup if request.path == '/signup' else self.signin if request.path == '/signin' else None,
+      'get': self.me,
     }
 
-    user_params = json.loads(args[0].body) if method in ['post'] else {}
+    params = json.loads(request.body) if method in ['post'] else {}
     
     if method in method_map:
-      return method_map[method](*args, **kwargs, user_params=user_params)
-    else:
-      return super().dispatch(*args, **kwargs)
+      return method_map[method](request, **kwargs, params=params)
 
-  def signup(self, request, user_params):
-    user = User(**user_params)
-    user.token = user.token()
+  def signup(self, request, params):
+    user = User(**params)
+    token = user.token()
     user.save()
     serialized_user = UserSerializer(user)
-    return JsonResponse(serialized_user.to_json())
+
+    response = JsonResponse(serialized_user.data, status=201)
+    response['Authorization'] = f'Bearer {token}'
+    return response
   
-  def signin(self, request, user_params):
-    user = User.objects.get(email=user_params['email'])
-    if user.password == user_params['password']:
-      user.token = user.token()
+  def signin(self, request, params):
+    user = User.objects.get(email=params['email'])
+    if user.password == params['password']:
+      token = user.token()
       user.save()
       serialized_user = UserSerializer(user)
-      return JsonResponse(serialized_user.to_json())
+    
+      response = JsonResponse(serialized_user.to_json())
+      response['Authorization'] = f'Bearer {token}'
+      return response
     else:
       return JsonResponse({'message': 'Invalid credentials'}, status=401)
     
-  # @authenticate_user
-  def show(self, request, id):
-    user = User.objects.get(id=id)
+  @method_decorator(authenticate_user)
+  def me(self, request, params):
+    user = User.objects.get(id=request.current_user_id)
     serialized_user = UserSerializer(user)
     return JsonResponse(serialized_user.to_json())
   
-  # @authenticate_user
-  def update(self, request, id, user_params):
-    user = User.objects.get(id=id)
-    for key, value in user_params.items():
+  @method_decorator(authenticate_user)
+  def update(self, request, id, params):
+    if request.current_user_id != id:
+      return JsonResponse({'message': 'You are not allowed to update this user'}, status=401)
+    user = User.objects.get(id=request.current_user_id)
+    for key, value in params.items():
       setattr(user, key, value)
     user.save()
     serialized_user = UserSerializer(user)
     return JsonResponse(serialized_user.to_json())
   
-  # @authenticate_user
-  def delete(self, request, id):
-    user = User.objects.get(id=id)
+  
+  @method_decorator(authenticate_user)
+  def destroy(self, request, id, params):
+    if request.current_user_id != id:
+      return JsonResponse({'message': 'You are not allowed to delete this user'}, status=401)
+    user = User.objects.get(id=request.current_user_id)
     user.delete()
     return JsonResponse({'message': 'User deleted successfully!'})
     

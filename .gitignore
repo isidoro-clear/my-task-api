@@ -1,0 +1,6 @@
+*/__pycache__/*.pyc
+*/migrations/__pycache__/*.pyc
+*/models/__pycache__/*.pyc
+*/views/__pycache__/*.pyc
+*/serializers/__pycache__/*.pyc
+.env
