@@ -1,6 +1,7 @@
 from django.views import View
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from meuapp.decorators import authenticate_user
 import json
 
 

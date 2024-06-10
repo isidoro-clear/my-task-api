@@ -7,7 +7,8 @@ class TaskSerializer:
             'id': self.instance.id,
             'title': self.instance.title,
             'description': self.instance.description,
-            'completed': self.instance.completed
+            'completed': self.instance.completed,
+            'user_id': self.instance.user_id
         }
     
     @staticmethod

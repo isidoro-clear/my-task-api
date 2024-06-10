@@ -28,7 +28,7 @@ class UserView(ApplicationView):
     user.save()
     serialized_user = UserSerializer(user)
 
-    response = JsonResponse(serialized_user.data, status=201)
+    response = JsonResponse(serialized_user.to_json(), status=201)
     response['Authorization'] = f'Bearer {token}'
     return response
   
