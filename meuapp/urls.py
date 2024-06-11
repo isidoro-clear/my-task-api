@@ -1,5 +1,5 @@
 from django.urls import path
-from meuapp.views import TaskView, UserView, TeamView, TeamMemberView, TeamInvitationView
+from meuapp.views import TaskView, UserView, TeamView, TeamMemberView, TeamInvitationView, SwaggerView
 
 urlpatterns = [
     path('tasks', TaskView.as_view(), name='tasks-list-create'),
@@ -15,4 +15,6 @@ urlpatterns = [
     path('team_invitations', TeamInvitationView.as_view(), name='team-invitations-list-create'),
     path('team_invitations/<int:id>', TeamInvitationView.as_view(), name='team-invitations-detail-update-delete'),
     path('team_invitations/<int:id>/accept', TeamInvitationView.as_view(), name='team-invitations-accept'),
+    path('swagger', SwaggerView.as_view(), name='swagger-ui'),
+    path('swagger.json', SwaggerView.as_view(), name='swagger-json'),   
 ]

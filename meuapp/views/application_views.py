@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from meuapp.decorators import authenticate_user
 import json
 
-
 class ApplicationView(View):
 
   @csrf_exempt
