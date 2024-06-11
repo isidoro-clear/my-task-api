@@ -7,7 +7,8 @@ class MeuappConfig(AppConfig):
     name = 'meuapp'
 
     def ready(self):
-        from meuapp.signals import task_signals, team_signals
+        from meuapp.signals import task_signals, team_signals, team_invitation_signals
         setting_changed.connect(task_signals.task_post_save)
         setting_changed.connect(team_signals.team_post_save)
+        setting_changed.connect(team_invitation_signals.team_invitation_post_save)
         pass

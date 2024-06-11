@@ -1,4 +1,4 @@
-class TeamMemberSerializer:
+class TeamInvitationSerializer:
   def __init__(self, instance):
     self.instance = instance
 
@@ -6,10 +6,10 @@ class TeamMemberSerializer:
     return {
       'id': self.instance.id,
       'team_id': self.instance.team_id,
-      'user_id': self.instance.user_id,
-      'role': self.instance.role,
+      'email': self.instance.email,
+      'status': self.instance.status,
     }
   
   @staticmethod
   def serialize(queryset):
-    return [TeamMemberSerializer(instance).to_json() for instance in queryset]
+    return [TeamInvitationSerializer(instance).to_json() for instance in queryset]

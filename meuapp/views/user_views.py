@@ -10,7 +10,7 @@ import json
 class UserView(ApplicationView):
 
   @csrf_exempt
-  def dispatch(self, request, **kwargs):
+  def dispatch(self, request, *args, **kwargs):
     method = request.method.lower()
     method_map = {
       'post': self.signup if request.path == '/signup' else self.signin if request.path == '/signin' else None,
@@ -21,6 +21,7 @@ class UserView(ApplicationView):
     
     if method in method_map:
       return method_map[method](request, **kwargs, params=params)
+    return super().dispatch(request, *args, **kwargs)
 
   def signup(self, request, params):
     user = User(**params)
