@@ -5,7 +5,7 @@ from meuapp.models import Task
 from django.utils.decorators import method_decorator
 from meuapp.decorators import authenticate_user
 
-class TaskView(ApplicationView):
+class TasksView(ApplicationView):
 
   @method_decorator(authenticate_user)
   def index(self, request, params):
@@ -24,7 +24,7 @@ class TaskView(ApplicationView):
     task = Task(**params, **{'user_id': request.current_user_id})
     task.save()
     serialized_task = TaskSerializer(task)
-    return JsonResponse(serialized_task.to_json())
+    return JsonResponse(serialized_task.to_json(), status=201)
 
   def update(self, request, id, params):
     task = Task.objects.get(id=id)

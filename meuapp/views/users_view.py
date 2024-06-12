@@ -7,7 +7,7 @@ from meuapp.serializers import UserSerializer
 from meuapp.models import User
 import json
 
-class UserView(ApplicationView):
+class UsersView(ApplicationView):
 
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):

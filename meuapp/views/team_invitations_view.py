@@ -7,7 +7,7 @@ from meuapp.decorators import authenticate_user
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-class TeamInvitationView(ApplicationView):
+class TeamInvitationsView(ApplicationView):
 
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):
@@ -48,7 +48,7 @@ class TeamInvitationView(ApplicationView):
     team_invitation = TeamInvitation(**params)
     team_invitation.save()
     serialized_team_invitation = TeamInvitationSerializer(team_invitation)
-    return JsonResponse(serialized_team_invitation.to_json())
+    return JsonResponse(serialized_team_invitation.to_json(), status=201)
   
   def update(self, request, id, params):
     team_invitation = TeamInvitation.objects.get(id=id)

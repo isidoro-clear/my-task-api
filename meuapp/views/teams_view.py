@@ -5,7 +5,7 @@ from meuapp.models import Team
 from django.utils.decorators import method_decorator
 from meuapp.decorators import authenticate_user
 
-class TeamView(ApplicationView):
+class TeamsView(ApplicationView):
 
   @method_decorator(authenticate_user)
   def index(self, request, params):
@@ -24,7 +24,7 @@ class TeamView(ApplicationView):
     team = Team(**params, **{'user_id': request.current_user_id})
     team.save()
     serialized_team = TeamSerializer(team)
-    return JsonResponse(serialized_team.to_json())
+    return JsonResponse(serialized_team.to_json(), status=201)
   
   def update(self, request, id, params):
     team = Team.objects.get(id=id)

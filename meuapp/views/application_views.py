@@ -10,16 +10,17 @@ class ApplicationView(View):
   def dispatch(self, request, *args, **kwargs):
     method = request.method.lower()
     method_map = {
-      'get': self.show if kwargs.get('id') else self.index,
-      'post': self.create,
-      'put': self.update,
-      'patch': self.update,
-      'delete': self.destroy,
+      'get': 'show' if kwargs.get('id') else 'index',
+      'post': 'create',
+      'put': 'update',
+      'patch': 'update',
+      'delete': 'destroy',
     }
 
     params = json.loads(request.body) if method in ['post', 'put', 'patch'] else {}
     
-    if method in method_map:
-      return method_map[method](request, *args, **kwargs, params=params)
+    handler = method_map.get(request.method.lower())
+    if handler and hasattr(self, handler):
+      return getattr(self, handler)(request, *args, **kwargs, params=params)
     return super().dispatch(request, *args, **kwargs)
   

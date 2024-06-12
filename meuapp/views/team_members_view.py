@@ -1,16 +1,17 @@
 from django.http import JsonResponse
 from meuapp.views.application_views import ApplicationView
 from meuapp.serializers import TeamMemberSerializer
-from meuapp.models import TeamMember
+from meuapp.models import TeamMember, Team
 from django.utils.decorators import method_decorator
 from meuapp.decorators import authenticate_user
 
-class TeamMemberView(ApplicationView):
+class TeamMembersView(ApplicationView):
 
   @method_decorator(authenticate_user)
   def index(self, request, params):
-    teams = TeamMember.objects.filter(user_id=request.current_user_id)
-    serialized_teams = TeamMemberSerializer.serialize(teams)
+    teams = Team.objects.filter(user_id=request.current_user_id)
+    teamMembers = TeamMember.objects.filter(team__in=teams)
+    serialized_teams = TeamMemberSerializer.serialize(teamMembers)
     
     return JsonResponse(serialized_teams, safe=False)
   
@@ -21,10 +22,13 @@ class TeamMemberView(ApplicationView):
   
   @method_decorator(authenticate_user)
   def create(self, request, params):
-    team = TeamMember(**params, **{'user_id': request.current_user_id})
-    team.save()
-    serialized_team = TeamMemberSerializer(team)
-    return JsonResponse(serialized_team.to_json())
+    team = Team.objects.filter(user_id=request.current_user_id, id=params['team_id']).first()
+    if team is None:
+      return JsonResponse({'message': 'You are not allowed to create a team member for this team'}, status=401)
+    team_member = TeamMember(**params)
+    team_member.save()
+    serialized_team = TeamMemberSerializer(team_member)
+    return JsonResponse(serialized_team.to_json(), status=201)
   
   def update(self, request, id, params):
     team = TeamMember.objects.get(id=id)
@@ -37,4 +41,4 @@ class TeamMemberView(ApplicationView):
   def destroy(self, request, id, params):
     team = TeamMember.objects.get(id=id)
     team.delete()
-    return JsonResponse({'message': 'Team deleted successfully!'})
+    return JsonResponse({'message': 'Team member deleted successfully!'})

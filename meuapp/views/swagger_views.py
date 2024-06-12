@@ -16,7 +16,6 @@ class SwaggerView(View):
       'get': self.json if request.path == '/swagger.json' else self.ui,
     }
 
-    print("METHOD", method_map)
     if method in method_map:
       return method_map[method](request, *args, **kwargs)
 
@@ -24,7 +23,6 @@ class SwaggerView(View):
     return render(request, 'swagger_ui.html')
   
   def json(self, request, *args, **kwargs):
-    print("BASE_DIR", settings.BASE_DIR)
     swagger_file = os.path.join(settings.BASE_DIR, 'swagger.yaml')
     with open(swagger_file, 'r') as file:
         swagger_data = yaml.safe_load(file)
