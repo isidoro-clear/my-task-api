@@ -9,6 +9,8 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meuprojeto.settings')
     try:
         from django.core.management import execute_from_command_line
+        from meuprojeto.create_db import create_database
+        create_database()
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "
