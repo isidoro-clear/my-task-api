@@ -8,5 +8,14 @@ class Task(models.Model):
   
   def __str__(self):
     return self.title
+  
+  def to_dict(self):
+    return {
+      "id": self.id,
+      "title": self.title,
+      "description": self.description,
+      "completed": self.completed,
+      "user": self.user.id
+    }
 
   pass

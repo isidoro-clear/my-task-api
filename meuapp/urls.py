@@ -2,6 +2,7 @@ from django.urls import path
 from meuapp.views import TasksView, UsersView, TeamsView, TeamMembersView, TeamInvitationsView, SwaggerView
 
 urlpatterns = [
+    path('tasks/search', TasksView.as_view(), name='tasks-search'),
     path('tasks', TasksView.as_view(), name='tasks-list-create'),
     path('tasks/<int:id>', TasksView.as_view(), name='tasks-detail-update-delete'),
     path('signup', UsersView.as_view(), name='signup'),
