@@ -48,17 +48,25 @@ class TasksView(ApplicationView):
   @method_decorator(authenticate_user)
   def create(self, request, params):
     task = Task(**params, **{'user_id': request.current_user_id})
-    task.save()
-    serialized_task = TaskSerializer(task)
-    return JsonResponse(serialized_task.to_json(), status=201)
+
+    try:
+      task.save()
+      serialized_task = TaskSerializer(task)
+      return JsonResponse(serialized_task.to_json(), status=201)
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
 
   def update(self, request, id, params):
     task = Task.objects.get(id=id)
     for key, value in params.items():
       setattr(task, key, value)
-    task.save()
-    serialized_task = TaskSerializer(task)
-    return JsonResponse(serialized_task.to_json())
+    
+    try:
+      task.save()
+      serialized_task = TaskSerializer(task)
+      return JsonResponse(serialized_task.to_json())
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   def destroy(self, request, id, params):
     task = Task.objects.get(id=id)

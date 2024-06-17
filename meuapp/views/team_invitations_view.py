@@ -37,26 +37,26 @@ class TeamInvitationsView(ApplicationView):
   
   @method_decorator(authenticate_user)
   def create(self, request, params):
-    team = Team.objects.get(user_id=request.current_user_id, id=params['team_id'])
-    members = TeamMember.objects.filter(team=team)
-    if team is None:
-      return JsonResponse({'message': 'You are not allowed to create a team invitation for this team'}, status=401)
-    if TeamInvitation.objects.filter(email=params['email'], team=team).exists():
-      return JsonResponse({'message': 'Team invitation already exists'}, status=401)
-    if members.filter(user__email=params['email']).exists():
-      return JsonResponse({'message': 'You cannot invite yourself to your own team'}, status=401)
     team_invitation = TeamInvitation(**params)
-    team_invitation.save()
-    serialized_team_invitation = TeamInvitationSerializer(team_invitation)
-    return JsonResponse(serialized_team_invitation.to_json(), status=201)
+
+    try:
+      team_invitation.save()
+      serialized_team_invitation = TeamInvitationSerializer(team_invitation)
+      return JsonResponse(serialized_team_invitation.to_json(), status=201)
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   def update(self, request, id, params):
     team_invitation = TeamInvitation.objects.get(id=id)
     for key, value in params.items():
       setattr(team_invitation, key, value)
-    team_invitation.save()
-    serialized_team_invitation = TeamInvitationSerializer(team_invitation)
-    return JsonResponse(serialized_team_invitation.to_json())
+
+    try:
+      team_invitation.save()
+      serialized_team_invitation = TeamInvitationSerializer(team_invitation)
+      return JsonResponse(serialized_team_invitation.to_json())
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   def destroy(self, request, id, params):
     team_invitation = TeamInvitation.objects.get(id=id)

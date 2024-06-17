@@ -26,17 +26,23 @@ class TeamMembersView(ApplicationView):
     if team is None:
       return JsonResponse({'message': 'You are not allowed to create a team member for this team'}, status=401)
     team_member = TeamMember(**params)
-    team_member.save()
-    serialized_team = TeamMemberSerializer(team_member)
-    return JsonResponse(serialized_team.to_json(), status=201)
+    try:
+      team_member.save()
+      serialized_team = TeamMemberSerializer(team_member)
+      return JsonResponse(serialized_team.to_json(), status=201)
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   def update(self, request, id, params):
     team = TeamMember.objects.get(id=id)
     for key, value in params.items():
       setattr(team, key, value)
-    team.save()
-    serialized_team = TeamMemberSerializer(team)
-    return JsonResponse(serialized_team.to_json())
+    try:
+      team.save()
+      serialized_team = TeamMemberSerializer(team)
+      return JsonResponse(serialized_team.to_json())
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   def destroy(self, request, id, params):
     team = TeamMember.objects.get(id=id)

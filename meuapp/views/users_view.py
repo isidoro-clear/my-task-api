@@ -26,12 +26,17 @@ class UsersView(ApplicationView):
   def signup(self, request, params):
     user = User(**params)
     token = user.token()
-    user.save()
-    serialized_user = UserSerializer(user)
+    try:
+      user.save()
+      serialized_user = UserSerializer(user)
 
-    response = JsonResponse(serialized_user.to_json(), status=201)
-    response['Authorization'] = f'Bearer {token}'
-    return response
+      response = JsonResponse(serialized_user.to_json(), status=201)
+      response['Authorization'] = f'Bearer {token}'
+      return response
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
+    except Exception as e:
+      return JsonResponse({'errors': str(e)}, status=500)
   
   def signin(self, request, params):
     user = User.objects.get(email=params['email'])
@@ -59,9 +64,13 @@ class UsersView(ApplicationView):
     user = User.objects.get(id=request.current_user_id)
     for key, value in params.items():
       setattr(user, key, value)
-    user.save()
-    serialized_user = UserSerializer(user)
-    return JsonResponse(serialized_user.to_json())
+      
+    try:
+      user.save()
+      serialized_user = UserSerializer(user)
+      return JsonResponse(serialized_user.to_json())
+    except ValueError as e:
+      return JsonResponse({'errors': str(e)}, status=400)
   
   
   @method_decorator(authenticate_user)

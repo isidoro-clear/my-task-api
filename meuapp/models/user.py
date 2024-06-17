@@ -1,13 +1,19 @@
 from django.db import models
 from dotenv import dotenv_values
+from meuapp.validators import UserValidator
 import datetime
 import jwt
 
 class User(models.Model):
-  first_name = models.CharField(max_length=200)
-  last_name = models.CharField(max_length=200)
-  email = models.EmailField(unique=True)
-  password = models.CharField(max_length=200)
+  first_name = models.CharField(max_length=200, null=False)
+  last_name = models.CharField(max_length=200, null=False)
+  email = models.EmailField(unique=True, null=False)
+  password = models.CharField(max_length=200, null=False)
+
+  def save(self, *args, **kwargs):
+    validator = UserValidator(self.first_name, self.last_name, self.email, self.password)
+    validator.validate()
+    super(User, self).save(*args, **kwargs)
 
   def __str__(self):
     return self.first_name + ' ' + self.last_name
